@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MATHEORY 等量代換訓練⚖️🦒</title>
+  <title>MATHEORY 動物等量天平⚖️🐻</title>
   <style>
     :root {
       --primary: #FF7A00;
@@ -335,7 +335,23 @@
       text-align: center;
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
     }
-    .modal-title { font-size: 22px; font-weight: 900; color: #212529; margin: 10px 0; }
+    
+    /* 閃亮品牌標籤 */
+    .modal-brand-badge {
+      background: #FFF4E6;
+      color: var(--primary);
+      font-weight: 900;
+      font-size: 12.5px;
+      letter-spacing: 0.5px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      display: inline-block;
+      margin-bottom: 12px;
+      border: 2px solid #FFE8CC;
+    }
+
+    .modal-title { font-size: 22px; font-weight: 900; color: #212529; margin: 0 0 10px 0; }
+    
     .stage-btn {
       width: 100%;
       padding: 14px;
@@ -368,7 +384,7 @@
   <div class="top-bar">
     <div class="brand-badge">
       <span class="brand-logo">MATHEORY</span>
-      <span class="game-title-small">等量代換訓練⚖️🦒</span>
+      <span class="game-title-small">動物等量天平⚖️🐻</span>
     </div>
     <button class="btn-restart" onclick="showStartScreen()">選關卡</button>
   </div>
@@ -425,8 +441,9 @@
   <!-- 開始選單 -->
   <div class="overlay" id="startOverlay">
     <div class="modal-card">
-      <div style="font-size: 48px;">⚖️🦒</div>
-      <h1 class="modal-title">MATHEORY 等量代換訓練</h1>
+      <div style="font-size: 48px; margin-bottom: 8px;">⚖️🐻</div>
+      <div class="modal-brand-badge">✨ MATHEORY 等量代換訓練 ✨</div>
+      <h1 class="modal-title">動物等量天平⚖️🐻</h1>
       <p style="color: #6C757D; margin-bottom: 20px; font-size: 14px;">利用動物的重量，學習數學的等量代換觀念！</p>
       <button class="stage-btn" onclick="startGame(1)">⚖️ 關卡 1：基礎代換 (VIP) <br><small style="color:#868E96;">固定 1 換 2</small></button>
       <button class="stage-btn" onclick="startGame(2)">⚖️ 關卡 2：進階代換 (混合) <br><small style="color:#868E96;">挑戰 1 換 3 或 4 (總數不大於 20)</small></button>
@@ -436,7 +453,8 @@
   <!-- 結算畫面 -->
   <div class="overlay hidden" id="endOverlay">
     <div class="modal-card">
-      <div style="font-size: 52px;">🏆🎉</div>
+      <div style="font-size: 52px; margin-bottom: 10px;">🏆🎉</div>
+      <div class="modal-brand-badge">✨ MATHEORY 等量代換訓練 ✨</div>
       <h2 class="modal-title">太棒了！代換小博士！</h2>
       <p style="color: #6C757D; margin-bottom: 20px;">你已經成功完成 10 題等量挑戰！</p>
       <button class="btn-large" onclick="showStartScreen()">🔄 重新選擇關卡</button>
@@ -444,7 +462,6 @@
   </div>
 
   <script>
-    // 動物資料庫 (確保沒有水果)
     const BIG_ANIMALS = ['🐘', '🐻', '🦁', '🦛'];
     const SMALL_ANIMALS = ['🐶', '🐱', '🐰', '🐸', '🐭'];
 
@@ -454,7 +471,6 @@
     let userCurrentCount = 0;
     let isChecking = false;
 
-    // UI 元素
     const startOverlay = document.getElementById('startOverlay');
     const endOverlay = document.getElementById('endOverlay');
     const hudStage = document.getElementById('hudStage');
@@ -472,7 +488,6 @@
       endOverlay.classList.add('hidden');
     }
 
-    // 生成題目 (防重複、數量上限 20)
     function generateRounds(stage) {
       let generated = [];
       let prevBig = '', prevSmall = '', prevAns = -1;
@@ -481,12 +496,10 @@
         let maxMult = 10;
         let ratio = (stage === 1) ? 2 : (Math.random() < 0.5 ? 3 : 4);
         
-        // 嚴格限制總數 <= 20
-        if (ratio === 3) maxMult = 6;  // 3 * 6 = 18
-        if (ratio === 4) maxMult = 5;  // 4 * 5 = 20
-        if (stage === 1) maxMult = 10; // 2 * 10 = 20
+        if (ratio === 3) maxMult = 6;  
+        if (ratio === 4) maxMult = 5;  
+        if (stage === 1) maxMult = 10; 
         
-        // 難度漸進
         let minM = 1, maxM = 3;
         if (i >= 3 && i <= 6) { minM = 3; maxM = Math.min(5, maxMult); }
         if (i > 6) { minM = Math.min(6, maxMult); maxM = maxMult; }
@@ -501,7 +514,6 @@
           
           let targetAns = isRev ? mult : mult * ratio;
           
-          // 檢查重複
           if (bAni !== prevBig && sAni !== prevSmall && targetAns !== prevAns) {
             generated.push({ big: bAni, small: sAni, ratio: ratio, mult: mult, isRev: isRev, targetAns: targetAns });
             prevBig = bAni; prevSmall = sAni; prevAns = targetAns;
@@ -524,7 +536,6 @@
 
     function renderGrid(container, icon, count) {
       container.innerHTML = '';
-      // 動態調整字體大小避免超過 20 隻時破版
       let fontSize = count > 12 ? '18px' : '24px';
       for (let i = 0; i < count; i++) {
         let span = document.createElement('span');
@@ -544,13 +555,10 @@
       hudRound.textContent = `${currentRoundIndex + 1} / 10`;
       hintBox.textContent = `1 ${rd.big} = ${rd.ratio} ${rd.small}`;
       
-      // 左邊固定放題目，右邊由玩家控制
       if (!rd.isRev) {
-        // 正向: 左放 N 隻大動物
         renderGrid(leftGrid, rd.big, rd.mult);
         renderGrid(rightGrid, rd.small, 0);
       } else {
-        // 反向: 左放 N 隻小動物
         renderGrid(leftGrid, rd.small, rd.mult * rd.ratio);
         renderGrid(rightGrid, rd.big, 0);
       }
@@ -558,16 +566,15 @@
       updatePhysics();
     }
 
-    // 處理天平物理傾斜
     function updatePhysics() {
       let rd = rounds[currentRoundIndex];
-      let leftWeight = rd.mult * rd.ratio; // 全部換算成小動物重量單位
+      let leftWeight = rd.mult * rd.ratio;
       
       let rightWeight = 0;
       if (!rd.isRev) {
-        rightWeight = userCurrentCount; // 用戶放的是小動物
+        rightWeight = userCurrentCount; 
       } else {
-        rightWeight = userCurrentCount * rd.ratio; // 用戶放的是大動物
+        rightWeight = userCurrentCount * rd.ratio; 
       }
 
       let diff = leftWeight - rightWeight;
@@ -606,14 +613,12 @@
       
       if (userCurrentCount === rd.targetAns) {
         isChecking = true;
-        // 確保天平完全水平
         beamContainer.style.transform = `rotate(0deg)`;
         panLeftContainer.style.transform = `rotate(0deg)`;
         panRightContainer.style.transform = `rotate(0deg)`;
         
         successBadge.classList.add('show');
         
-        // 停留 3.5 秒
         setTimeout(() => {
           currentRoundIndex++;
           if (currentRoundIndex >= 10) {
@@ -621,9 +626,8 @@
           } else {
             loadRound();
           }
-        }, 5000);
+        }, 3500);
       } else {
-        // 錯誤提示
         beamContainer.style.transform = `${beamContainer.style.transform} scale(1.05)`;
         setTimeout(() => updatePhysics(), 200);
       }
