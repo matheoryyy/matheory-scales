@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MATHEORY 等量代換訓練⚖️🦒</title>
+  <style>
+    :root {
+      --primary: #FF7A00;
+      --primary-dark: #E06300;
+      --secondary: #2B8A3E;
+      --bg-sky: #E3F6FF;
+      --bg-grass-light: #8CE99A;
+      --bg-grass-dark: #51CF66;
+      --text-main: #212529;
+      --text-muted: #6C757D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang HK", "Microsoft JhengHei", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(180deg, var(--bg-sky) 0%, #D0EBFF 45%, var(--bg-grass-light) 45%, var(--bg-grass-dark) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 12px;
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    /* 頂部列 */
+    .top-bar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.94);
+      padding: 8px 14px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      z-index: 10;
+    }
+
+    .brand-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-logo {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: 0.8px;
+      padding: 4px 9px;
+      border-radius: 8px;
+    }
+
+    .game-title-small {
+      font-weight: 800;
+      font-size: 14px;
+      color: #2B2D42;
+    }
+
+    .btn-restart {
+      background: #F1F3F5;
+      border: none;
+      color: #495057;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    /* 主容器 */
+    .game-container {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    /* 儀表板 */
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .hud-box {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 8px 10px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+    }
+    .hud-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .hud-value {
+      font-size: 18px;
+      font-weight: 900;
+      color: #212529;
+    }
+
+    /* 任務區塊 */
+    .mission-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      border: 3px solid #FCC419;
+    }
+
+    .hint-box {
+      background: #FFF9DB;
+      border: 2px dashed #F59F00;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 18px;
+      font-weight: 900;
+      color: #E67700;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 天平設計 (HTML/CSS 建構，物理旋轉) */
+    .scale-wrapper {
+      position: relative;
+      height: 180px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* 天平底座 */
+    .scale-base {
+      position: absolute;
+      bottom: 0;
+      width: 30px;
+      height: 140px;
+      background: #DEE2E6;
+      border: 3px solid #ADB5BD;
+      border-radius: 4px 4px 0 0;
+      z-index: 1;
+    }
+    .scale-base::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: -30px;
+      width: 84px;
+      height: 12px;
+      background: #ADB5BD;
+      border-radius: 6px;
+    }
+
+    /* 旋轉的橫樑 */
+    .scale-beam-container {
+      position: absolute;
+      top: 40px;
+      width: 280px;
+      height: 10px;
+      z-index: 2;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .scale-beam {
+      width: 100%;
+      height: 8px;
+      background: #495057;
+      border-radius: 4px;
+      position: relative;
+    }
+    .scale-pivot {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      background: #FA5252;
+      border: 3px solid #C92A2A;
+      border-radius: 50%;
+      z-index: 3;
+    }
+
+    /* 左右秤盤 */
+    .pan-container {
+      position: absolute;
+      top: 0;
+      width: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .pan-left { left: -10px; }
+    .pan-right { right: -10px; }
+
+    .pan-ropes {
+      width: 60px;
+      height: 50px;
+      border-left: 2px solid #868E96;
+      border-right: 2px solid #868E96;
+      border-bottom: none;
+    }
+    .pan-tray {
+      width: 100px;
+      height: 16px;
+      background: #E9ECEF;
+      border: 3px solid #ADB5BD;
+      border-radius: 0 0 20px 20px;
+      position: relative;
+    }
+
+    /* 裝載動物的格子 (自動排版) */
+    .items-grid {
+      position: absolute;
+      bottom: 18px;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap-reverse;
+      justify-content: center;
+      align-items: flex-end;
+      gap: -2px;
+      pointer-events: none;
+    }
+    .animal-item {
+      font-size: 24px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    /* 成功提示小標籤 */
+    .success-badge {
+      display: inline-block;
+      background: #D8F5A2;
+      color: #2B8A3E;
+      border: 2px solid #40C057;
+      font-size: 14px;
+      font-weight: 900;
+      padding: 4px 14px;
+      border-radius: 99px;
+      margin: 8px auto 0;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.3s;
+    }
+    .success-badge.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* 互動按鈕區 */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .btn-action {
+      flex: 1;
+      background: #F8F9FA;
+      border: 3px solid #DEE2E6;
+      padding: 12px;
+      font-size: 24px;
+      font-weight: 900;
+      border-radius: 16px;
+      cursor: pointer;
+      color: #343A40;
+    }
+    .btn-action:active { background: #E9ECEF; transform: translateY(2px); }
+    .btn-submit {
+      flex: 1.5;
+      background: var(--primary);
+      border: none;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: 900;
+      border-radius: 16px;
+      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 4px 0 var(--primary-dark);
+    }
+    .btn-submit:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+
+    /* 彈窗遮罩 */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(33, 37, 41, 0.8);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+    .overlay.hidden { display: none; }
+    .modal-card {
+      background: #FFFFFF;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 28px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+    }
+    .modal-title { font-size: 22px; font-weight: 900; color: #212529; margin: 10px 0; }
+    .stage-btn {
+      width: 100%;
+      padding: 14px;
+      background: #F8F9FA;
+      border: 2px solid #DEE2E6;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .stage-btn:hover { background: #FFF4E6; border-color: var(--primary); }
+    
+    .btn-large {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="brand-badge">
+      <span class="brand-logo">MATHEORY</span>
+      <span class="game-title-small">等量代換訓練⚖️🦒</span>
+    </div>
+    <button class="btn-restart" onclick="showStartScreen()">選關卡</button>
+  </div>
+
+  <div class="game-container">
+    <div class="hud">
+      <div class="hud-box">
+        <div class="hud-label">🎯 目前關卡</div>
+        <div class="hud-value" id="hudStage">基礎代換</div>
+      </div>
+      <div class="hud-box">
+        <div class="hud-label">題數進度</div>
+        <div class="hud-value" id="hudRound">1 / 10</div>
+      </div>
+    </div>
+
+    <div class="mission-card">
+      <div class="hint-box" id="hintBox">1 🐘 = 2 🐶</div>
+      
+      <div class="scale-wrapper">
+        <div class="scale-base"></div>
+        <div class="scale-beam-container" id="beamContainer">
+          <div class="scale-beam"></div>
+          <div class="scale-pivot"></div>
+          
+          <!-- 左盤 -->
+          <div class="pan-container pan-left" id="panLeftContainer">
+            <div class="pan-ropes"></div>
+            <div class="pan-tray">
+              <div class="items-grid" id="leftGrid"></div>
+            </div>
+          </div>
+          
+          <!-- 右盤 -->
+          <div class="pan-container pan-right" id="panRightContainer">
+            <div class="pan-ropes"></div>
+            <div class="pan-tray">
+              <div class="items-grid" id="rightGrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-badge" id="successBadge">🎉 答對了！</div>
+
+      <div class="controls">
+        <button class="btn-action" id="btnMinus">➖</button>
+        <button class="btn-submit" id="btnSubmit">⚖️ 檢查平衡</button>
+        <button class="btn-action" id="btnPlus">➕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 開始選單 -->
+  <div class="overlay" id="startOverlay">
+    <div class="modal-card">
+      <div style="font-size: 48px;">⚖️🦒</div>
+      <h1 class="modal-title">MATHEORY 等量代換訓練</h1>
+      <p style="color: #6C757D; margin-bottom: 20px; font-size: 14px;">利用動物的重量，學習數學的等量代換觀念！</p>
+      <button class="stage-btn" onclick="startGame(1)">⚖️ 關卡 1：基礎代換 (VIP) <br><small style="color:#868E96;">固定 1 換 2</small></button>
+      <button class="stage-btn" onclick="startGame(2)">⚖️ 關卡 2：進階代換 (混合) <br><small style="color:#868E96;">挑戰 1 換 3 或 4 (總數不大於 20)</small></button>
+    </div>
+  </div>
+
+  <!-- 結算畫面 -->
+  <div class="overlay hidden" id="endOverlay">
+    <div class="modal-card">
+      <div style="font-size: 52px;">🏆🎉</div>
+      <h2 class="modal-title">太棒了！代換小博士！</h2>
+      <p style="color: #6C757D; margin-bottom: 20px;">你已經成功完成 10 題等量挑戰！</p>
+      <button class="btn-large" onclick="showStartScreen()">🔄 重新選擇關卡</button>
+    </div>
+  </div>
+
+  <script>
+    // 動物資料庫 (確保沒有水果)
+    const BIG_ANIMALS = ['🐘', '🐻', '🦁', '🦛'];
+    const SMALL_ANIMALS = ['🐶', '🐱', '🐰', '🐸', '🐭'];
+
+    let currentStage = 1;
+    let currentRoundIndex = 0;
+    let rounds = [];
+    let userCurrentCount = 0;
+    let isChecking = false;
+
+    // UI 元素
+    const startOverlay = document.getElementById('startOverlay');
+    const endOverlay = document.getElementById('endOverlay');
+    const hudStage = document.getElementById('hudStage');
+    const hudRound = document.getElementById('hudRound');
+    const hintBox = document.getElementById('hintBox');
+    const beamContainer = document.getElementById('beamContainer');
+    const panLeftContainer = document.getElementById('panLeftContainer');
+    const panRightContainer = document.getElementById('panRightContainer');
+    const leftGrid = document.getElementById('leftGrid');
+    const rightGrid = document.getElementById('rightGrid');
+    const successBadge = document.getElementById('successBadge');
+
+    function showStartScreen() {
+      startOverlay.classList.remove('hidden');
+      endOverlay.classList.add('hidden');
+    }
+
+    // 生成題目 (防重複、數量上限 20)
+    function generateRounds(stage) {
+      let generated = [];
+      let prevBig = '', prevSmall = '', prevAns = -1;
+
+      for (let i = 0; i < 10; i++) {
+        let maxMult = 10;
+        let ratio = (stage === 1) ? 2 : (Math.random() < 0.5 ? 3 : 4);
+        
+        // 嚴格限制總數 <= 20
+        if (ratio === 3) maxMult = 6;  // 3 * 6 = 18
+        if (ratio === 4) maxMult = 5;  // 4 * 5 = 20
+        if (stage === 1) maxMult = 10; // 2 * 10 = 20
+        
+        // 難度漸進
+        let minM = 1, maxM = 3;
+        if (i >= 3 && i <= 6) { minM = 3; maxM = Math.min(5, maxMult); }
+        if (i > 6) { minM = Math.min(6, maxMult); maxM = maxMult; }
+        if (minM > maxM) minM = maxM;
+
+        let attempt = 0;
+        while (attempt < 100) {
+          let mult = Math.floor(Math.random() * (maxM - minM + 1)) + minM;
+          let bAni = BIG_ANIMALS[Math.floor(Math.random() * BIG_ANIMALS.length)];
+          let sAni = SMALL_ANIMALS[Math.floor(Math.random() * SMALL_ANIMALS.length)];
+          let isRev = Math.random() < 0.5;
+          
+          let targetAns = isRev ? mult : mult * ratio;
+          
+          // 檢查重複
+          if (bAni !== prevBig && sAni !== prevSmall && targetAns !== prevAns) {
+            generated.push({ big: bAni, small: sAni, ratio: ratio, mult: mult, isRev: isRev, targetAns: targetAns });
+            prevBig = bAni; prevSmall = sAni; prevAns = targetAns;
+            break;
+          }
+          attempt++;
+        }
+      }
+      return generated;
+    }
+
+    function startGame(stage) {
+      currentStage = stage;
+      currentRoundIndex = 0;
+      hudStage.textContent = (stage === 1) ? "基礎代換 (VIP)" : "進階代換 (混合)";
+      rounds = generateRounds(stage);
+      startOverlay.classList.add('hidden');
+      loadRound();
+    }
+
+    function renderGrid(container, icon, count) {
+      container.innerHTML = '';
+      // 動態調整字體大小避免超過 20 隻時破版
+      let fontSize = count > 12 ? '18px' : '24px';
+      for (let i = 0; i < count; i++) {
+        let span = document.createElement('span');
+        span.className = 'animal-item';
+        span.style.fontSize = fontSize;
+        span.textContent = icon;
+        container.appendChild(span);
+      }
+    }
+
+    function loadRound() {
+      isChecking = false;
+      successBadge.classList.remove('show');
+      userCurrentCount = 0;
+      
+      let rd = rounds[currentRoundIndex];
+      hudRound.textContent = `${currentRoundIndex + 1} / 10`;
+      hintBox.textContent = `1 ${rd.big} = ${rd.ratio} ${rd.small}`;
+      
+      // 左邊固定放題目，右邊由玩家控制
+      if (!rd.isRev) {
+        // 正向: 左放 N 隻大動物
+        renderGrid(leftGrid, rd.big, rd.mult);
+        renderGrid(rightGrid, rd.small, 0);
+      } else {
+        // 反向: 左放 N 隻小動物
+        renderGrid(leftGrid, rd.small, rd.mult * rd.ratio);
+        renderGrid(rightGrid, rd.big, 0);
+      }
+      
+      updatePhysics();
+    }
+
+    // 處理天平物理傾斜
+    function updatePhysics() {
+      let rd = rounds[currentRoundIndex];
+      let leftWeight = rd.mult * rd.ratio; // 全部換算成小動物重量單位
+      
+      let rightWeight = 0;
+      if (!rd.isRev) {
+        rightWeight = userCurrentCount; // 用戶放的是小動物
+      } else {
+        rightWeight = userCurrentCount * rd.ratio; // 用戶放的是大動物
+      }
+
+      let diff = leftWeight - rightWeight;
+      let angle = diff * 1.5; 
+      if (angle > 12) angle = 12;
+      if (angle < -12) angle = -12;
+
+      beamContainer.style.transform = `rotate(${angle}deg)`;
+      panLeftContainer.style.transform = `rotate(${-angle}deg)`;
+      panRightContainer.style.transform = `rotate(${-angle}deg)`;
+    }
+
+    document.getElementById('btnPlus').addEventListener('click', () => {
+      if (isChecking) return;
+      if (userCurrentCount < 20) {
+        userCurrentCount++;
+        let rd = rounds[currentRoundIndex];
+        renderGrid(rightGrid, rd.isRev ? rd.big : rd.small, userCurrentCount);
+        updatePhysics();
+      }
+    });
+
+    document.getElementById('btnMinus').addEventListener('click', () => {
+      if (isChecking) return;
+      if (userCurrentCount > 0) {
+        userCurrentCount--;
+        let rd = rounds[currentRoundIndex];
+        renderGrid(rightGrid, rd.isRev ? rd.big : rd.small, userCurrentCount);
+        updatePhysics();
+      }
+    });
+
+    document.getElementById('btnSubmit').addEventListener('click', () => {
+      if (isChecking) return;
+      let rd = rounds[currentRoundIndex];
+      
+      if (userCurrentCount === rd.targetAns) {
+        isChecking = true;
+        // 確保天平完全水平
+        beamContainer.style.transform = `rotate(0deg)`;
+        panLeftContainer.style.transform = `rotate(0deg)`;
+        panRightContainer.style.transform = `rotate(0deg)`;
+        
+        successBadge.classList.add('show');
+        
+        // 停留 3.5 秒
+        setTimeout(() => {
+          currentRoundIndex++;
+          if (currentRoundIndex >= 10) {
+            endOverlay.classList.remove('hidden');
+          } else {
+            loadRound();
+          }
+        }, 5000);
+      } else {
+        // 錯誤提示
+        beamContainer.style.transform = `${beamContainer.style.transform} scale(1.05)`;
+        setTimeout(() => updatePhysics(), 200);
+      }
+    });
+  </script>
+</body>
+</html>
